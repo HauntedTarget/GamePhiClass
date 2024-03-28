@@ -4,11 +4,22 @@ using UnityEngine;
 
 public class PhysicsCollider : MonoBehaviour
 {
+    [SerializeField] GameObject colEffect = null;
+
     string status;
+    Vector3 contact, normal;
 
     private void OnCollisionEnter(Collision collision)
     {
         status = "Collision Enter: " + collision.gameObject.name;
+
+        contact = collision.GetContact(0).point;
+        normal = collision.GetContact(0).normal;
+
+        if (colEffect != null)
+        {
+            Instantiate(colEffect, contact, Quaternion.LookRotation(normal));
+        }
     }
 
     private void OnCollisionStay(Collision collision)
@@ -41,5 +52,12 @@ public class PhysicsCollider : MonoBehaviour
         GUI.skin.label.fontSize = 16;
         Vector2 screen = Camera.main.WorldToScreenPoint(transform.position);
         GUI.Label(new(screen.x, Screen.height - screen.y, 250, 70), status);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(contact, 0.5f);
+        Gizmos.DrawLine(contact, contact + normal);
     }
 }

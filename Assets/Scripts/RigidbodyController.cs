@@ -2,10 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KinematicController : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+public class RigidbodyController : MonoBehaviour
 {
     [SerializeField] float speed = 1;
+    [SerializeField] ForceMode forceMode; 
     [SerializeField] Space space = Space.World;
+
+    Rigidbody rb;
+    Vector3 force = Vector3.zero, torque = Vector3.zero;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     // Update is called once per frame
     void Update()
@@ -18,13 +28,21 @@ public class KinematicController : MonoBehaviour
         {
             rotation = Input.GetAxis("Horizontal");
         }
-        direction.z = Input.GetAxis("Vertical");
 
+        direction.z = Input.GetAxis("Vertical");
         direction = Vector3.ClampMagnitude(direction, 1);
 
-        transform.Rotate(0, rotation * (speed / 2), 0);
+        force = direction * speed;
+        torque = Vector3.up * rotation * speed;
 
-        transform.Translate(direction * speed * Time.deltaTime, space);
+        //transform.Rotate(0, rotation * (speed / 2), 0);
+        //transform.Translate(direction * speed * Time.deltaTime, space);
+    }
+
+    private void FixedUpdate()
+    {
+        rb.AddRelativeForce(force, forceMode);
+        rb.AddTorque(torque, forceMode);
     }
 
     //RGB
